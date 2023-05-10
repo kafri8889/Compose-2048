@@ -1,5 +1,7 @@
 package com.anafthdev.a2048.uicomponent
 
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -20,6 +22,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
+import com.anafthdev.a2048.data.model.Tile
 import com.anafthdev.a2048.foundation.common.GameEngine
 import com.anafthdev.a2048.foundation.theme._2048Theme
 
@@ -27,13 +31,14 @@ import com.anafthdev.a2048.foundation.theme._2048Theme
 @Composable
 private fun GameBoardPreview() {
 	_2048Theme {
-		GameBoard(tiles = GameEngine.testBoard)
+		GameBoard(tiles = GameEngine.toTiles(GameEngine.testBoard))
 	}
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GameBoard(
-	tiles: Array<Int>,
+	tiles: Array<Tile>,
 	onUp: () -> Unit = {},
 	onDown: () -> Unit = {},
 	onLeft: () -> Unit = {},
@@ -41,6 +46,7 @@ fun GameBoard(
 ) {
 	
 	Box {
+		// Tiles background
 		LazyVerticalGrid(
 			columns = GridCells.Fixed(4),
 			verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -51,8 +57,33 @@ fun GameBoard(
 				.clip(RoundedCornerShape(8.dp))
 				.background(colorDark)
 				.padding(8.dp)
+				.zIndex(1f)
 		) {
-			items(tiles) { value ->
+			items(GameEngine.toTiles(GameEngine.emptyBoard)) {
+				Box(
+					modifier = Modifier
+						.aspectRatio(1f / 1f)
+						.clip(RoundedCornerShape(8.dp))
+						.background(colorEmpty.copy(alpha = 0.64f))
+				)
+			}
+		}
+		
+		LazyVerticalGrid(
+			columns = GridCells.Fixed(4),
+			verticalArrangement = Arrangement.spacedBy(8.dp),
+			horizontalArrangement = Arrangement.spacedBy(8.dp),
+			modifier = Modifier
+				.fillMaxWidth(0.9f)
+				.aspectRatio(1f / 1f)
+				.clip(RoundedCornerShape(8.dp))
+				.padding(8.dp)
+				.zIndex(2f)
+		) {
+			items(
+				items = tiles,
+				key = { item: Tile -> item.id }
+			) { (_, value) ->
 				
 				val tilesColor = getTilesColor(value)
 				
@@ -62,6 +93,9 @@ fun GameBoard(
 						.aspectRatio(1f / 1f)
 						.clip(RoundedCornerShape(8.dp))
 						.background(tilesColor)
+						.animateItemPlacement(
+							animationSpec = tween(256)
+						)
 				) {
 					Text(
 						text = if (value != 0) "$value" else "",
@@ -82,6 +116,7 @@ fun GameBoard(
 			modifier = Modifier
 				.fillMaxWidth(0.9f)
 				.aspectRatio(1f / 1f)
+				.zIndex(3f)
 		)
 	}
 }
@@ -99,7 +134,7 @@ private fun getTilesColor(value: Int): Color {
 		512 -> color512
 		1024 -> color1024
 		2048 -> color2048
-		else -> colorEmpty.copy(alpha = 0.64f)
+		else -> Color.Transparent
 	}
 }
 

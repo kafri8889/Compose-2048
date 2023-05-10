@@ -1,6 +1,7 @@
 package com.anafthdev.a2048.foundation.common
 
 import com.anafthdev.a2048.data.Direction
+import com.anafthdev.a2048.data.model.Tile
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
@@ -10,8 +11,8 @@ class GameEngine {
 	
 	private val TILE_SIZE = 4
 	
-	private val _tiles = MutableStateFlow(testBoard)
-	val tiles: StateFlow<Array<Int>> = _tiles
+	private val _tiles = MutableStateFlow(toTiles(testBoard))
+	val tiles: StateFlow<Array<Tile>> = _tiles
 	
 	fun move(direction: Direction) {
 		val newTiles = tiles.value.clone()
@@ -33,14 +34,14 @@ class GameEngine {
 						Timber.i("current index: $currentIndex")
 						
 						whileLoop@ while (true) {
-							if (nextTile != 0) {
+							if (nextTile.value != 0) {
 								newTiles[currentIndex] = newTiles[currentIndex]
 								Timber.i("break because `nextTile != 0`")
 								break@whileLoop
 							}
-
+							
 							newTiles[nextIndex] = newTiles[currentIndex]
-							newTiles[currentIndex] = 0
+							newTiles[currentIndex] = nextTile
 							
 							val xNextIndex = nextIndex % TILE_SIZE
 							val yNextIndex = nextIndex / TILE_SIZE
@@ -94,6 +95,12 @@ class GameEngine {
 			0, 1024, 32, 4,
 			128, 2, 0, 256,
 		)
+		
+		fun toTiles(t: Array<Int>): Array<Tile> {
+			return t.mapIndexed { i, v -> Tile(i, v) }.also {
+				Timber.i("Convert to tile: $it")
+			}.toTypedArray()
+		}
 	}
 	
 }

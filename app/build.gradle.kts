@@ -1,5 +1,3 @@
-import org.jetbrains.kotlin.kapt3.base.Kapt.kapt
-
 plugins {
 	id("idea")
 	id("com.android.application")
@@ -111,9 +109,9 @@ dependencies {
 //	implementation("androidx.media3:media3-exoplayer:$media3_version")
 	
 	// Material Design
-	implementation("com.google.android.material:material:1.8.0")
-	implementation("androidx.compose.material:material:1.4.2")
-	implementation("androidx.compose.material:material-icons-extended:1.4.2")
+	implementation("com.google.android.material:material:1.9.0")
+	implementation("androidx.compose.material:material:1.4.3")
+	implementation("androidx.compose.material:material-icons-extended:1.4.3")
 	implementation("androidx.compose.material3:material3:1.1.0-rc01")
 	implementation("androidx.compose.material3:material3-window-size-class:1.0.1")
 	
