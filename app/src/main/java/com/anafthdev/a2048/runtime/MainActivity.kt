@@ -6,6 +6,7 @@ import androidx.activity.compose.setContent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.anafthdev.a2048.data.Direction
 import com.anafthdev.a2048.foundation.common.GameEngine
 import com.anafthdev.a2048.foundation.theme._2048Theme
 import com.anafthdev.a2048.uicomponent.GameBoard
@@ -22,7 +23,21 @@ class MainActivity : ComponentActivity() {
 				
 				val tiles by gameEngine.tiles.collectAsStateWithLifecycle()
 				
-				GameBoard(tiles = tiles)
+				GameBoard(
+					tiles = tiles,
+					onUp = {
+						gameEngine.move(Direction.Up)
+					},
+					onDown = {
+						gameEngine.move(Direction.Down)
+					},
+					onLeft = {
+						gameEngine.move(Direction.Up)
+					},
+					onRight = {
+						gameEngine.move(Direction.Up)
+					},
+				)
 			}
 		}
 	}

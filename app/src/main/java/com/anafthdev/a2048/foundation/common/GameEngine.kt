@@ -1,14 +1,9 @@
 package com.anafthdev.a2048.foundation.common
 
 import com.anafthdev.a2048.data.Direction
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class GameEngine {
@@ -18,39 +13,29 @@ class GameEngine {
 	private val _tiles = MutableStateFlow(testBoard)
 	val tiles: StateFlow<Array<Int>> = _tiles
 	
-	// For testing
-	init {
-		CoroutineScope(Dispatchers.IO).launch {
-			delay(3000)
-			
-			withContext(Dispatchers.Main) {
-				move(Direction.Down)
-			}
-		}
-	}
-	
 	fun move(direction: Direction) {
 		val newTiles = tiles.value.clone()
 		val tileRange = 0 until TILE_SIZE
 		
 		when (direction) {
-			Direction.Up -> {
-			
-			}
-			Direction.Down -> {
-				// `(TILE_SIZE - 2)` => Exclude last index
-				for (i in (TILE_SIZE - 2) downTo 0) {
+			Direction.Up, Direction.Down -> {
+				val indexAddition = if (direction.isUp()) -1 else 1
+				val iRange = if (direction.isUp()) 1 until TILE_SIZE
+				else (TILE_SIZE - 2) downTo 0
+				
+				for (i in iRange) {
 					for (j in 0 until TILE_SIZE) {
 						var currentIndex = i * TILE_SIZE + j
-						var nextIndex = (i + 1).coerceIn(tileRange) * TILE_SIZE + j
+						var nextIndex = (i + indexAddition).coerceIn(tileRange) * TILE_SIZE + j
 						var nextTile = newTiles[nextIndex]
 						
 						Timber.i("nextTile ($i, $j): $nextTile")
+						Timber.i("current index: $currentIndex")
 						
 						whileLoop@ while (true) {
 							if (nextTile != 0) {
 								newTiles[currentIndex] = newTiles[currentIndex]
-								Timber.i("break `because nextTile != 0`")
+								Timber.i("break because `nextTile != 0`")
 								break@whileLoop
 							}
 
@@ -60,12 +45,15 @@ class GameEngine {
 							val xNextIndex = nextIndex % TILE_SIZE
 							val yNextIndex = nextIndex / TILE_SIZE
 							
-							val newYNextIndex = yNextIndex + 1
+							Timber.i("xNextIndex: $xNextIndex")
+							Timber.i("yNextIndex: $yNextIndex")
+							
+							val newYNextIndex = yNextIndex + indexAddition
 							
 							Timber.i("next y: $newYNextIndex")
 							
-							if (newYNextIndex >= TILE_SIZE) {
-								Timber.i("break because `newYNextIndex >= TILE_SIZE`")
+							if (newYNextIndex >= TILE_SIZE || newYNextIndex < 0) {
+								Timber.i("break because `$newYNextIndex >= TILE_SIZE || $newYNextIndex < 0`")
 								break@whileLoop
 							}
 							

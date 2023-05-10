@@ -34,39 +34,55 @@ private fun GameBoardPreview() {
 @Composable
 fun GameBoard(
 	tiles: Array<Int>,
+	onUp: () -> Unit = {},
+	onDown: () -> Unit = {},
+	onLeft: () -> Unit = {},
+	onRight: () -> Unit = {}
 ) {
 	
-	LazyVerticalGrid(
-		columns = GridCells.Fixed(4),
-		verticalArrangement = Arrangement.spacedBy(8.dp),
-		horizontalArrangement = Arrangement.spacedBy(8.dp),
-		modifier = Modifier
-			.fillMaxWidth(0.9f)
-			.aspectRatio(1f / 1f)
-			.clip(RoundedCornerShape(8.dp))
-			.background(colorDark)
-			.padding(8.dp)
-	) {
-		items(tiles) { value ->
-			
-			val tilesColor = getTilesColor(value)
-			
-			Box(
-				contentAlignment = Alignment.Center,
-				modifier = Modifier
-					.aspectRatio(1f / 1f)
-					.clip(RoundedCornerShape(8.dp))
-					.background(tilesColor)
-			) {
-				Text(
-					text = if (value != 0) "$value" else "",
-					style = MaterialTheme.typography.titleMedium.copy(
-						fontWeight = FontWeight.Bold,
-						color = if (value >= 8) colorLight else colorDark
+	Box {
+		LazyVerticalGrid(
+			columns = GridCells.Fixed(4),
+			verticalArrangement = Arrangement.spacedBy(8.dp),
+			horizontalArrangement = Arrangement.spacedBy(8.dp),
+			modifier = Modifier
+				.fillMaxWidth(0.9f)
+				.aspectRatio(1f / 1f)
+				.clip(RoundedCornerShape(8.dp))
+				.background(colorDark)
+				.padding(8.dp)
+		) {
+			items(tiles) { value ->
+				
+				val tilesColor = getTilesColor(value)
+				
+				Box(
+					contentAlignment = Alignment.Center,
+					modifier = Modifier
+						.aspectRatio(1f / 1f)
+						.clip(RoundedCornerShape(8.dp))
+						.background(tilesColor)
+				) {
+					Text(
+						text = if (value != 0) "$value" else "",
+						style = MaterialTheme.typography.titleMedium.copy(
+							fontWeight = FontWeight.Bold,
+							color = if (value >= 8) colorLight else colorDark
+						)
 					)
-				)
+				}
 			}
 		}
+		
+		GestureDetector(
+			onUp = onUp,
+			onDown = onDown,
+			onLeft = onLeft,
+			onRight = onRight,
+			modifier = Modifier
+				.fillMaxWidth(0.9f)
+				.aspectRatio(1f / 1f)
+		)
 	}
 }
 

@@ -4,5 +4,10 @@ enum class Direction {
 	Up,
 	Down,
 	Left,
-	Right
+	Right;
+	
+	fun isUp(): Boolean = this == Up
+	fun isDown(): Boolean = this == Down
+	fun isLeft(): Boolean = this == Left
+	fun isRight(): Boolean = this == Right
 }
