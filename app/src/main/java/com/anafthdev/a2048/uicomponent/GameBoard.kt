@@ -99,7 +99,7 @@ fun GameBoard(
 				if (i == lastAddedTileIndex) {
 					LaunchedEffect(Unit) {
 						scaleAnimatable.animateTo(
-							1f, tween(128)
+							1f, tween(256)
 						)
 					}
 				}
