@@ -22,9 +22,11 @@ class MainActivity : ComponentActivity() {
 				}
 				
 				val tiles by gameEngine.tiles.collectAsStateWithLifecycle()
+				val lastAddedTileIndex by gameEngine.lastAddedTileIndex.collectAsStateWithLifecycle()
 				
 				GameBoard(
 					tiles = tiles,
+					lastAddedTileIndex = lastAddedTileIndex,
 					onUp = {
 						gameEngine.move(Direction.Up)
 					},

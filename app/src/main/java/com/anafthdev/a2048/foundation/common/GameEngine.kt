@@ -2,9 +2,14 @@ package com.anafthdev.a2048.foundation.common
 
 import com.anafthdev.a2048.data.Direction
 import com.anafthdev.a2048.data.model.Tile
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import timber.log.Timber
 
 class GameEngine {
@@ -13,6 +18,10 @@ class GameEngine {
 	
 	private val _tiles = MutableStateFlow(toTiles(testBoard))
 	val tiles: StateFlow<Array<Tile>> = _tiles
+	
+	// used to trigger an animation when a new tile appears
+	private val _lastAddedTileIndex = MutableStateFlow(-1)
+	val lastAddedTileIndex: StateFlow<Int> = _lastAddedTileIndex
 	
 	fun move(direction: Direction) {
 		Timber.d("Move direction: $direction")
@@ -120,6 +129,33 @@ class GameEngine {
 		}
 		
 		_tiles.update { newTiles }
+		
+		addNewTile(newTiles)
+	}
+	
+	private fun addNewTile(mTiles: Array<Tile>) {
+		val newTiles = mTiles.clone()
+		val emptyTileWithIndex = arrayListOf<Pair<Int, Tile>>()
+		
+		newTiles.forEachIndexed { i, tile ->
+			if (tile.isEmpty()) emptyTileWithIndex.add(i to tile)
+		}
+		
+		val (randomIndex, randomTile) = emptyTileWithIndex.random()
+		
+		newTiles[randomIndex] = randomTile.copy(
+			value = 2
+		)
+		
+		CoroutineScope(Dispatchers.IO).launch {
+			// Wait until animation finished
+			delay(150)
+			
+			withContext(Dispatchers.Main) {
+				_lastAddedTileIndex.update { randomIndex }
+				_tiles.update { newTiles }
+			}
+		}
 	}
 	
 	companion object {

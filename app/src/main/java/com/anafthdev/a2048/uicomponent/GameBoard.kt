@@ -1,5 +1,6 @@
 package com.anafthdev.a2048.uicomponent
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -9,16 +10,21 @@ import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,14 +37,17 @@ import com.anafthdev.a2048.foundation.theme._2048Theme
 @Composable
 private fun GameBoardPreview() {
 	_2048Theme {
-		GameBoard(tiles = GameEngine.toTiles(GameEngine.testBoard))
+		GameBoard(
+			tiles = GameEngine.toTiles(GameEngine.testBoard),
+			lastAddedTileIndex = -1
+		)
 	}
 }
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GameBoard(
 	tiles: Array<Tile>,
+	lastAddedTileIndex: Int,
 	onUp: () -> Unit = {},
 	onDown: () -> Unit = {},
 	onLeft: () -> Unit = {},
@@ -70,6 +79,7 @@ fun GameBoard(
 		}
 		
 		LazyVerticalGrid(
+			userScrollEnabled = false,
 			columns = GridCells.Fixed(4),
 			verticalArrangement = Arrangement.spacedBy(8.dp),
 			horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -80,31 +90,30 @@ fun GameBoard(
 				.padding(8.dp)
 				.zIndex(2f)
 		) {
-			items(
+			itemsIndexed(
 				items = tiles,
-				key = { item: Tile -> item.id }
-			) { (_, value) ->
+				key = { _, item: Tile -> item.id }
+			) { i, (_, value) ->
+				val scaleAnimatable = remember { Animatable(0f) }
 				
-				val tilesColor = getTilesColor(value)
-				
-				Box(
-					contentAlignment = Alignment.Center,
-					modifier = Modifier
-						.aspectRatio(1f / 1f)
-						.clip(RoundedCornerShape(8.dp))
-						.background(tilesColor)
-						.animateItemPlacement(
-							animationSpec = tween(128)
+				if (i == lastAddedTileIndex) {
+					LaunchedEffect(Unit) {
+						scaleAnimatable.animateTo(
+							1f, tween(128)
 						)
-				) {
-					Text(
-						text = if (value != 0) "$value" else "",
-						style = MaterialTheme.typography.titleMedium.copy(
-							fontWeight = FontWeight.Bold,
-							color = if (value >= 8) colorLight else colorDark
-						)
-					)
+					}
 				}
+				
+				TileBox(
+					value = value,
+					modifier = Modifier
+						.graphicsLayer {
+							if (i == lastAddedTileIndex) {
+								scaleX = scaleAnimatable.value
+								scaleY = scaleAnimatable.value
+							}
+						}
+				)
 			}
 		}
 		
@@ -117,6 +126,35 @@ fun GameBoard(
 				.fillMaxWidth(0.9f)
 				.aspectRatio(1f / 1f)
 				.zIndex(3f)
+		)
+	}
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun LazyGridItemScope.TileBox(
+	value: Int,
+	modifier: Modifier = Modifier
+) {
+	
+	val tilesColor = getTilesColor(value)
+	
+	Box(
+		contentAlignment = Alignment.Center,
+		modifier = modifier
+			.aspectRatio(1f / 1f)
+			.clip(RoundedCornerShape(8.dp))
+			.background(tilesColor)
+			.animateItemPlacement(
+				animationSpec = tween(128)
+			)
+	) {
+		Text(
+			text = if (value != 0) "$value" else "",
+			style = MaterialTheme.typography.titleMedium.copy(
+				fontWeight = FontWeight.Bold,
+				color = if (value >= 8) colorLight else colorDark
+			)
 		)
 	}
 }
