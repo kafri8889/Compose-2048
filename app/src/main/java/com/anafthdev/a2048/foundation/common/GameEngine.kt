@@ -20,13 +20,13 @@ class GameEngine {
 		val newTiles = tiles.value.clone()
 		val tileRange = 0 until TILE_SIZE
 		
+		val indexAddition = if (direction.isUp() or direction.isLeft()) -1 else 1
+		val dRange = if (direction.isUp() or direction.isLeft()) 1 until TILE_SIZE
+		else (TILE_SIZE - 2) downTo 0
+		
 		when (direction) {
 			Direction.Up, Direction.Down -> {
-				val indexAddition = if (direction.isUp()) -1 else 1
-				val iRange = if (direction.isUp()) 1 until TILE_SIZE
-				else (TILE_SIZE - 2) downTo 0
-				
-				for (i in iRange) {
+				for (i in dRange) {
 					for (j in 0 until TILE_SIZE) {
 						var currentIndex = i * TILE_SIZE + j
 						var nextIndex = (i + indexAddition).coerceIn(tileRange) * TILE_SIZE + j
@@ -72,12 +72,8 @@ class GameEngine {
 				}
 			}
 			Direction.Left, Direction.Right -> {
-				val indexAddition = if (direction.isLeft()) -1 else 1
-				val jRange = if (direction.isLeft()) 1 until TILE_SIZE
-				else (TILE_SIZE - 2) downTo 0
-				
 				for (i in 0 until TILE_SIZE) {
-					for (j in jRange) {
+					for (j in dRange) {
 						var currentIndex = i * TILE_SIZE + j
 						var nextIndex = i * TILE_SIZE + (j + indexAddition).coerceIn(tileRange)
 						var nextTile = newTiles[nextIndex]
