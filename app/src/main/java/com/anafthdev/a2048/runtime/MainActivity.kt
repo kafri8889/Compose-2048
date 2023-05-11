@@ -32,10 +32,10 @@ class MainActivity : ComponentActivity() {
 						gameEngine.move(Direction.Down)
 					},
 					onLeft = {
-						gameEngine.move(Direction.Up)
+						gameEngine.move(Direction.Left)
 					},
 					onRight = {
-						gameEngine.move(Direction.Up)
+						gameEngine.move(Direction.Right)
 					},
 				)
 			}

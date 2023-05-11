@@ -94,7 +94,7 @@ fun GameBoard(
 						.clip(RoundedCornerShape(8.dp))
 						.background(tilesColor)
 						.animateItemPlacement(
-							animationSpec = tween(256)
+							animationSpec = tween(128)
 						)
 				) {
 					Text(

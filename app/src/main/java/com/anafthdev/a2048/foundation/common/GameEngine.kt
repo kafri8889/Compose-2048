@@ -15,6 +15,8 @@ class GameEngine {
 	val tiles: StateFlow<Array<Tile>> = _tiles
 	
 	fun move(direction: Direction) {
+		Timber.d("Move direction: $direction")
+		
 		val newTiles = tiles.value.clone()
 		val tileRange = 0 until TILE_SIZE
 		
@@ -69,11 +71,55 @@ class GameEngine {
 					}
 				}
 			}
-			Direction.Left -> {
-			
-			}
-			Direction.Right -> {
-			
+			Direction.Left, Direction.Right -> {
+				val indexAddition = if (direction.isLeft()) -1 else 1
+				val jRange = if (direction.isLeft()) 1 until TILE_SIZE
+				else (TILE_SIZE - 2) downTo 0
+				
+				for (i in 0 until TILE_SIZE) {
+					for (j in jRange) {
+						var currentIndex = i * TILE_SIZE + j
+						var nextIndex = i * TILE_SIZE + (j + indexAddition).coerceIn(tileRange)
+						var nextTile = newTiles[nextIndex]
+						
+						Timber.i("nextTile ($i, $j): $nextTile")
+						Timber.i("current index: $currentIndex")
+						
+						whileLoop@ while (true) {
+							if (nextTile.value != 0) {
+								newTiles[currentIndex] = newTiles[currentIndex]
+								Timber.i("break because `nextTile != 0`")
+								break@whileLoop
+							}
+							
+							newTiles[nextIndex] = newTiles[currentIndex]
+							newTiles[currentIndex] = nextTile
+							
+							val xNextIndex = nextIndex % TILE_SIZE
+							val yNextIndex = nextIndex / TILE_SIZE
+							
+							Timber.i("xNextIndex: $xNextIndex")
+							Timber.i("yNextIndex: $yNextIndex")
+							
+							val newXNextIndex = xNextIndex + indexAddition
+							
+							Timber.i("next x: $newXNextIndex")
+							
+							if (newXNextIndex >= TILE_SIZE || newXNextIndex < 0) {
+								Timber.i("break because `$newXNextIndex >= TILE_SIZE || $newXNextIndex < 0`")
+								break@whileLoop
+							}
+							
+							currentIndex = nextIndex
+							nextIndex = yNextIndex * TILE_SIZE + newXNextIndex
+							nextTile = newTiles[nextIndex]
+							
+							Timber.i("updated current index: $currentIndex")
+							Timber.i("updated next index: $nextIndex")
+							Timber.i("updated next tile: $nextTile")
+						}
+					}
+				}
 			}
 		}
 		
@@ -93,7 +139,7 @@ class GameEngine {
 			16, 8, 2048, 0,
 			0, 2, 0, 512,
 			0, 1024, 32, 4,
-			128, 2, 0, 256,
+			128, 0, 0, 256,
 		)
 		
 		fun toTiles(t: Array<Int>): Array<Tile> {
