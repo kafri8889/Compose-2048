@@ -38,7 +38,7 @@ import com.anafthdev.a2048.foundation.theme._2048Theme
 private fun GameBoardPreview() {
 	_2048Theme {
 		GameBoard(
-			tiles = GameEngine.toTiles(GameEngine.testBoard),
+			tiles = GameEngine.toTiles(GameEngine.emptyBoard),
 			lastAddedTileIndex = -1
 		)
 	}

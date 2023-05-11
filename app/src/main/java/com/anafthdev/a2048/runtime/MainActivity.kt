@@ -3,6 +3,7 @@ package com.anafthdev.a2048.runtime
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -23,6 +24,10 @@ class MainActivity : ComponentActivity() {
 				
 				val tiles by gameEngine.tiles.collectAsStateWithLifecycle()
 				val lastAddedTileIndex by gameEngine.lastAddedTileIndex.collectAsStateWithLifecycle()
+				
+				LaunchedEffect(gameEngine) {
+					gameEngine.init()
+				}
 				
 				GameBoard(
 					tiles = tiles,

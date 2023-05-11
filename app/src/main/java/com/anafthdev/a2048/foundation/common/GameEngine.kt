@@ -16,12 +16,17 @@ class GameEngine {
 	
 	private val TILE_SIZE = 4
 	
-	private val _tiles = MutableStateFlow(toTiles(testBoard))
+	private val _tiles = MutableStateFlow(toTiles(emptyBoard))
 	val tiles: StateFlow<Array<Tile>> = _tiles
 	
-	// used to trigger an animation when a new tile appears
+	// used to trigger an animation when a new tile added
 	private val _lastAddedTileIndex = MutableStateFlow(-1)
 	val lastAddedTileIndex: StateFlow<Int> = _lastAddedTileIndex
+	
+	fun init() {
+		_tiles.update { toTiles(emptyBoard) }
+		addNewTile(tiles.value)
+	}
 	
 	fun move(direction: Direction) {
 		Timber.d("Move direction: $direction")
@@ -39,12 +44,23 @@ class GameEngine {
 					for (j in 0 until TILE_SIZE) {
 						var currentIndex = i * TILE_SIZE + j
 						var nextIndex = (i + indexAddition).coerceIn(tileRange) * TILE_SIZE + j
+						var currentTile = newTiles[currentIndex]
 						var nextTile = newTiles[nextIndex]
 						
 						Timber.i("nextTile ($i, $j): $nextTile")
 						Timber.i("current index: $currentIndex")
 						
 						whileLoop@ while (true) {
+							if (currentTile.value == nextTile.value) {
+								newTiles[currentIndex] = currentTile.copy(
+									value = 0
+								)
+								
+								newTiles[nextIndex] = nextTile.copy(
+									value = nextTile.value * 2
+								)
+							}
+							
 							if (nextTile.value != 0) {
 								newTiles[currentIndex] = newTiles[currentIndex]
 								Timber.i("break because `nextTile != 0`")
@@ -71,6 +87,7 @@ class GameEngine {
 							
 							currentIndex = nextIndex
 							nextIndex = newYNextIndex * TILE_SIZE + xNextIndex
+							currentTile = newTiles[currentIndex]
 							nextTile = newTiles[nextIndex]
 							
 							Timber.i("updated current index: $currentIndex")
@@ -85,12 +102,23 @@ class GameEngine {
 					for (j in dRange) {
 						var currentIndex = i * TILE_SIZE + j
 						var nextIndex = i * TILE_SIZE + (j + indexAddition).coerceIn(tileRange)
+						var currentTile = newTiles[currentIndex]
 						var nextTile = newTiles[nextIndex]
 						
 						Timber.i("nextTile ($i, $j): $nextTile")
 						Timber.i("current index: $currentIndex")
 						
 						whileLoop@ while (true) {
+							if (currentTile.value == nextTile.value) {
+								newTiles[currentIndex] = currentTile.copy(
+									value = 0
+								)
+								
+								newTiles[nextIndex] = nextTile.copy(
+									value = nextTile.value * 2
+								)
+							}
+							
 							if (nextTile.value != 0) {
 								newTiles[currentIndex] = newTiles[currentIndex]
 								Timber.i("break because `nextTile != 0`")
@@ -117,6 +145,7 @@ class GameEngine {
 							
 							currentIndex = nextIndex
 							nextIndex = yNextIndex * TILE_SIZE + newXNextIndex
+							currentTile = newTiles[currentIndex]
 							nextTile = newTiles[nextIndex]
 							
 							Timber.i("updated current index: $currentIndex")
