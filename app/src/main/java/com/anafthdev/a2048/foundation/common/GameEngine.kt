@@ -22,12 +22,77 @@ class GameEngine {
 	private val _swipes = MutableStateFlow(0)
 	val swipes: StateFlow<Int> = _swipes
 	
+	private val _gameOver = MutableStateFlow(false)
+	val gameOver: StateFlow<Boolean> = _gameOver
+	
 	private val _tiles = MutableStateFlow(toTiles(emptyBoard))
 	val tiles: StateFlow<Array<Tile>> = _tiles
 	
 	// used to trigger an animation when a new tile added
 	private val _lastAddedTileIndex = MutableStateFlow(-1)
 	val lastAddedTileIndex: StateFlow<Int> = _lastAddedTileIndex
+	
+	private fun checkGameOver(mTiles: Array<Tile>): Boolean {
+		val notEmpty = mTiles.map { it.value }.contains(0)
+		
+		Timber.i("tiles not empty: $notEmpty")
+		
+		if (notEmpty) return false
+		
+		for (i in 0 until TILE_SIZE - 1) {
+			for (j in 0 until TILE_SIZE) {
+				val currentIndex = i * TILE_SIZE + j
+				var nextVerticalIndex = (i + 1) * TILE_SIZE + j
+				
+				val currentTile = mTiles[currentIndex]
+				var nextTile = mTiles[nextVerticalIndex]
+				
+				while (nextTile.value == 0) {
+					if (nextVerticalIndex == TILE_SIZE - 1) break
+					
+					val x = nextVerticalIndex % TILE_SIZE
+					val y = nextVerticalIndex / TILE_SIZE
+					
+					nextVerticalIndex = (y + 1) * TILE_SIZE + x
+					nextTile = mTiles[nextVerticalIndex]
+				}
+				
+				val equals = currentTile.value == nextTile.value
+				
+				Timber.i("$currentIndex == $nextVerticalIndex | $equals")
+				
+				if (equals) return false
+			}
+		}
+		
+		for (i in 0 until TILE_SIZE) {
+			for (j in 0 until TILE_SIZE - 1) {
+				val currentIndex = i * TILE_SIZE + j
+				var nextHorizontalIndex = i * TILE_SIZE + (j + 1)
+				
+				val currentTile = mTiles[currentIndex]
+				var nextTile = mTiles[nextHorizontalIndex]
+				
+				while (nextTile.value == 0) {
+					if (nextHorizontalIndex == TILE_SIZE - 1) break
+					
+					val x = nextHorizontalIndex % TILE_SIZE
+					val y = nextHorizontalIndex / TILE_SIZE
+					
+					nextHorizontalIndex = y * TILE_SIZE + (x + 1)
+					nextTile = mTiles[nextHorizontalIndex]
+				}
+				
+				val equals = currentTile.value == nextTile.value
+				
+				Timber.i("$currentIndex == $nextHorizontalIndex | $equals")
+				
+				if (equals) return false
+			}
+		}
+		
+		return true
+	}
 	
 	fun reset() {
 		_score.update { 0 }
@@ -182,20 +247,30 @@ class GameEngine {
 			if (tile.isEmpty()) emptyTileWithIndex.add(i to tile)
 		}
 		
-		val (randomIndex, randomTile) = emptyTileWithIndex.random()
-		
-		newTiles[randomIndex] = randomTile.copy(
-			value = 2
-		)
-		
-		CoroutineScope(Dispatchers.IO).launch {
-			// Wait until animation finished
-			delay(150)
+		try {
+			val (randomIndex, randomTile) = emptyTileWithIndex.random()
 			
-			withContext(Dispatchers.Main) {
-				_lastAddedTileIndex.update { randomIndex }
-				_tiles.update { newTiles }
+			newTiles[randomIndex] = randomTile.copy(
+				value = 2
+			)
+			
+			CoroutineScope(Dispatchers.IO).launch {
+				// Wait until animation finished
+				delay(150)
+				
+				withContext(Dispatchers.Main) {
+					_lastAddedTileIndex.update { randomIndex }
+					_tiles.update { newTiles }
+					
+					val gameOver = checkGameOver(newTiles)
+					
+					Timber.i("game over: $gameOver")
+					
+					_gameOver.update { gameOver }
+				}
 			}
+		} catch (e: NoSuchElementException) {
+			Timber.e(e)
 		}
 	}
 	
@@ -209,10 +284,10 @@ class GameEngine {
 		)
 		
 		val testBoard: Array<Int> = arrayOf(
-			16, 8, 2048, 0,
-			0, 2, 0, 512,
-			0, 1024, 32, 4,
-			128, 0, 0, 256,
+			2, 4, 2, 4,
+			4, 2, 4, 0,
+			2, 4, 2, 4,
+			4, 2, 4, 0,
 		)
 		
 		fun toTiles(t: Array<Int>): Array<Tile> {

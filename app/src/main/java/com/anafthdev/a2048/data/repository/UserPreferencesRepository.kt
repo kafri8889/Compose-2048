@@ -10,7 +10,7 @@ class UserPreferencesRepository @Inject constructor(
 	private val userPreferencesDataStore: DataStore<UserPreferences>
 ) {
 	
-	suspend fun setLastExportPath(score: Int) {
+	suspend fun setHighScore(score: Int) {
 		userPreferencesDataStore.updateData {
 			it.copy(highScore = score)
 		}

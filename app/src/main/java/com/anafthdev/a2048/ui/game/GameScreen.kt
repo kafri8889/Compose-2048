@@ -16,9 +16,11 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -26,6 +28,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavController
 import com.anafthdev.a2048.UserPreferences
 import com.anafthdev.a2048.data.Direction
+import com.anafthdev.a2048.foundation.extension.toast
 import com.anafthdev.a2048.uicomponent.GameBoard
 
 @Composable
@@ -34,12 +37,22 @@ fun GameScreen(
 	navController: NavController
 ) {
 	
+	val context = LocalContext.current
+	
 	val score by viewModel.score.collectAsStateWithLifecycle()
 	val tiles by viewModel.tiles.collectAsStateWithLifecycle()
 	val swipes by viewModel.swipes.collectAsStateWithLifecycle()
+	val gameOver by viewModel.gameOver.collectAsStateWithLifecycle()
 	val isPlaying by viewModel.isPlaying.collectAsStateWithLifecycle()
 	val userPreferences by viewModel.userPreferences.collectAsStateWithLifecycle(UserPreferences())
 	val lastAddedTileIndex by viewModel.lastAddedTileIndex.collectAsStateWithLifecycle()
+	
+	LaunchedEffect(gameOver) {
+		viewModel.gameOver()
+		if (gameOver) {
+			"Game over".toast(context)
+		}
+	}
 	
 	Column(
 		horizontalAlignment = Alignment.CenterHorizontally,
@@ -143,7 +156,7 @@ fun GameScreen(
 		
 		GameBoard(
 			tiles = tiles,
-			userGestureEnabled = isPlaying,
+			userGestureEnabled = isPlaying && !gameOver,
 			lastAddedTileIndex = lastAddedTileIndex,
 			onUp = {
 				viewModel.move(Direction.Up)
