@@ -186,7 +186,9 @@ fun GameScreen(
 				modifier = Modifier
 					.fillMaxWidth(0.9f)
 			) {
-				Text("Play")
+				Text(
+					text = if (gameOver) "New Game" else "Play"
+				)
 			}
 		}
 	}
