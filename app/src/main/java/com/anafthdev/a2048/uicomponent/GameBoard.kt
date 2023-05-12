@@ -49,6 +49,7 @@ fun GameBoard(
 	tiles: Array<Tile>,
 	lastAddedTileIndex: Int,
 	modifier: Modifier = Modifier,
+	userGestureEnabled: Boolean = true,
 	onUp: () -> Unit = {},
 	onDown: () -> Unit = {},
 	onLeft: () -> Unit = {},
@@ -58,6 +59,7 @@ fun GameBoard(
 	Box {
 		// Tiles background
 		LazyVerticalGrid(
+			userScrollEnabled = false,
 			columns = GridCells.Fixed(4),
 			verticalArrangement = Arrangement.spacedBy(8.dp),
 			horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -121,6 +123,7 @@ fun GameBoard(
 			onDown = onDown,
 			onLeft = onLeft,
 			onRight = onRight,
+			enabled = userGestureEnabled,
 			modifier = Modifier
 				.fillMaxWidth(0.9f)
 				.aspectRatio(1f / 1f)

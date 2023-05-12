@@ -1,5 +1,9 @@
 package com.anafthdev.a2048.ui.game
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -7,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -32,6 +37,7 @@ fun GameScreen(
 	val score by viewModel.score.collectAsStateWithLifecycle()
 	val tiles by viewModel.tiles.collectAsStateWithLifecycle()
 	val swipes by viewModel.swipes.collectAsStateWithLifecycle()
+	val isPlaying by viewModel.isPlaying.collectAsStateWithLifecycle()
 	val userPreferences by viewModel.userPreferences.collectAsStateWithLifecycle(UserPreferences())
 	val lastAddedTileIndex by viewModel.lastAddedTileIndex.collectAsStateWithLifecycle()
 	
@@ -137,6 +143,7 @@ fun GameScreen(
 		
 		GameBoard(
 			tiles = tiles,
+			userGestureEnabled = isPlaying,
 			lastAddedTileIndex = lastAddedTileIndex,
 			onUp = {
 				viewModel.move(Direction.Up)
@@ -153,5 +160,21 @@ fun GameScreen(
 			modifier = Modifier
 				.fillMaxWidth(0.9f)
 		)
+		
+		Spacer(modifier = Modifier.height(16.dp))
+		
+		AnimatedVisibility(
+			visible = !isPlaying,
+			enter = scaleIn(tween(256)),
+			exit = scaleOut(tween(256))
+		) {
+			Button(
+				onClick = viewModel::play,
+				modifier = Modifier
+					.fillMaxWidth(0.9f)
+			) {
+				Text("Play")
+			}
+		}
 	}
 }
