@@ -47,15 +47,15 @@ class GameEngine {
 				val currentTile = mTiles[currentIndex]
 				var nextTile = mTiles[nextVerticalIndex]
 				
-				while (nextTile.value == 0) {
-					if (nextVerticalIndex == TILE_SIZE - 1) break
-					
-					val x = nextVerticalIndex % TILE_SIZE
-					val y = nextVerticalIndex / TILE_SIZE
-					
-					nextVerticalIndex = (y + 1) * TILE_SIZE + x
-					nextTile = mTiles[nextVerticalIndex]
-				}
+//				while (nextTile.value == 0) {
+//					if (nextVerticalIndex == TILE_SIZE - 1) break
+//
+//					val x = nextVerticalIndex % TILE_SIZE
+//					val y = nextVerticalIndex / TILE_SIZE
+//
+//					nextVerticalIndex = (y + 1) * TILE_SIZE + x
+//					nextTile = mTiles[nextVerticalIndex]
+//				}
 				
 				val equals = currentTile.value == nextTile.value
 				
@@ -73,15 +73,15 @@ class GameEngine {
 				val currentTile = mTiles[currentIndex]
 				var nextTile = mTiles[nextHorizontalIndex]
 				
-				while (nextTile.value == 0) {
-					if (nextHorizontalIndex == TILE_SIZE - 1) break
-					
-					val x = nextHorizontalIndex % TILE_SIZE
-					val y = nextHorizontalIndex / TILE_SIZE
-					
-					nextHorizontalIndex = y * TILE_SIZE + (x + 1)
-					nextTile = mTiles[nextHorizontalIndex]
-				}
+//				while (nextTile.value == 0) {
+//					if (nextHorizontalIndex == TILE_SIZE - 1) break
+//
+//					val x = nextHorizontalIndex % TILE_SIZE
+//					val y = nextHorizontalIndex / TILE_SIZE
+//
+//					nextHorizontalIndex = y * TILE_SIZE + (x + 1)
+//					nextTile = mTiles[nextHorizontalIndex]
+//				}
 				
 				val equals = currentTile.value == nextTile.value
 				
