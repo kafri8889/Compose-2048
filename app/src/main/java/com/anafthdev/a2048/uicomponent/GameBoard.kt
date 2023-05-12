@@ -48,6 +48,7 @@ private fun GameBoardPreview() {
 fun GameBoard(
 	tiles: Array<Tile>,
 	lastAddedTileIndex: Int,
+	modifier: Modifier = Modifier,
 	onUp: () -> Unit = {},
 	onDown: () -> Unit = {},
 	onLeft: () -> Unit = {},
@@ -60,8 +61,7 @@ fun GameBoard(
 			columns = GridCells.Fixed(4),
 			verticalArrangement = Arrangement.spacedBy(8.dp),
 			horizontalArrangement = Arrangement.spacedBy(8.dp),
-			modifier = Modifier
-				.fillMaxWidth(0.9f)
+			modifier = modifier
 				.aspectRatio(1f / 1f)
 				.clip(RoundedCornerShape(8.dp))
 				.background(colorDark)
@@ -83,8 +83,7 @@ fun GameBoard(
 			columns = GridCells.Fixed(4),
 			verticalArrangement = Arrangement.spacedBy(8.dp),
 			horizontalArrangement = Arrangement.spacedBy(8.dp),
-			modifier = Modifier
-				.fillMaxWidth(0.9f)
+			modifier = modifier
 				.aspectRatio(1f / 1f)
 				.clip(RoundedCornerShape(8.dp))
 				.padding(8.dp)

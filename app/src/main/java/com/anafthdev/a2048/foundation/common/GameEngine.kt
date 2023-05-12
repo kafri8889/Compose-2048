@@ -16,6 +16,12 @@ class GameEngine {
 	
 	private val TILE_SIZE = 4
 	
+	private val _score = MutableStateFlow(0)
+	val score: StateFlow<Int> = _score
+	
+	private val _swipes = MutableStateFlow(0)
+	val swipes: StateFlow<Int> = _swipes
+	
 	private val _tiles = MutableStateFlow(toTiles(emptyBoard))
 	val tiles: StateFlow<Array<Tile>> = _tiles
 	
@@ -23,7 +29,8 @@ class GameEngine {
 	private val _lastAddedTileIndex = MutableStateFlow(-1)
 	val lastAddedTileIndex: StateFlow<Int> = _lastAddedTileIndex
 	
-	fun init() {
+	fun reset() {
+		_score.update { 0 }
 		_tiles.update { toTiles(emptyBoard) }
 		addNewTile(tiles.value)
 	}
@@ -59,6 +66,8 @@ class GameEngine {
 								newTiles[nextIndex] = nextTile.copy(
 									value = nextTile.value * 2
 								)
+								
+								_score.update { it + nextTile.value * 2 }
 							}
 							
 							if (nextTile.value != 0) {
@@ -117,6 +126,8 @@ class GameEngine {
 								newTiles[nextIndex] = nextTile.copy(
 									value = nextTile.value * 2
 								)
+								
+								_score.update { it + nextTile.value * 2 }
 							}
 							
 							if (nextTile.value != 0) {
@@ -158,6 +169,7 @@ class GameEngine {
 		}
 		
 		_tiles.update { newTiles }
+		_swipes.update { it + 1 }
 		
 		addNewTile(newTiles)
 	}
